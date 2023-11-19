@@ -1,0 +1,286 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Log Ingestor",
+    "description": "An API that helps you ingest logs into a database and filter them based on your needs.",
+    "version": "1.0"
+  },
+  "basePath": "/",
+  "components": {
+    "schemas": {
+      "Log": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "resourceId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "traceId": {
+            "type": "string"
+          },
+          "spanId": {
+            "type": "string"
+          },
+          "commit": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "parentResourceId": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "level",
+          "message",
+          "resourceId",
+          "timestamp",
+          "traceId",
+          "spanId",
+          "commit",
+          "metadata"
+        ]
+      },
+      "LogItems": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Log"
+        },
+        "required": [
+          "level",
+          "message",
+          "resourceId",
+          "timestamp",
+          "traceId",
+          "spanId",
+          "commit",
+          "metadata"
+        ]
+      }
+    }
+  },
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "tags": [
+    {
+      "name": "Insert Data",
+      "description": "Insert JSON logs to DB"
+    },
+    {
+      "name": "Filter",
+      "description": "Filter the data based on your needs"
+    }
+  ],
+  "paths": {
+    "/insert": {
+      "post": {
+        "tags": [
+          "Insert Data"
+        ],
+        "summary": "Inserts a log into the database.",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Enter the log to be inserted.",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/LogItems"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data inserted successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/filter": {
+      "get": {
+        "tags": [
+          "Filter"
+        ],
+        "summary": "Filters logs from the database.",
+        "parameters": [
+          {
+            "name": "field_to_filter",
+            "in": "query",
+            "description": "Enter the filter parameters.",
+            "required": true,
+            "type": "string",
+            "default": "level",
+            "enum": [
+              "level",
+              "message",
+              "resourceId",
+              "traceId",
+              "spanId",
+              "commit",
+              "metadata",
+              "parentResourceId"
+            ]
+          },
+          {
+            "name": "value_to_filter",
+            "in": "query",
+            "description": "Choose the value to filter",
+            "required": false,
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "regex_for_filter",
+            "in": "query",
+            "description": "Choose the regex to filter",
+            "required": false,
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+              "$ref": "#/components/schemas/LogItems"
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/filter/filterByTimestamp/{start_datetime}/{end_datetime}": {
+      "get": {
+        "tags": [
+          "Filter"
+        ],
+        "summary": "Filters logs from the database by timestamp range.",
+        "parameters": [
+          {
+            "name": "start_datetime",
+            "in": "path",
+            "description": "Start timestamp for the range",
+            "required": true,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "end_datetime",
+            "in": "path",
+            "description": "End timestamp for the range",
+            "required": true,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "schema": {
+              "$ref": "#/components/schemas/LogItems"
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

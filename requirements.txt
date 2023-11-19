@@ -1,0 +1,7 @@
+flask-restplus
+flask-sqlalchemy
+flask_restful
+flask-swagger-ui
+flask_mongoengine
+flask
+SQLAlchemy
